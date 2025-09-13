@@ -12,7 +12,7 @@
                 </li>
             </ul>
 
-            <Pagination :meta="posts.meta" class="mt-2"/>
+            <Pagination :meta="posts.meta" class="mt-2" :only="['posts']"/>
         </Container>
     </AppLayout>
 </template>

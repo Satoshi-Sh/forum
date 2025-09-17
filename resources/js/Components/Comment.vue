@@ -8,7 +8,11 @@
             <span class="first-letter:uppercase block pt-1 text-xs text-gray-600">By {{
                     comment.user.name
                 }} {{ relativeDate(comment.created_at) }} ago</span>
-            <div class="mt-3 text-right empty:hidden">
+
+            <div class="mt-3 flex justify-end space-x-3 empty:hidden">
+                <form @submit.prevent="$emit('edit', comment.id)" v-if="comment.can?.update">
+                    <button class="font-mono hover:font-semibold text-xs">Edit</button>
+                </form>
                 <form @submit.prevent="$emit('delete', comment.id)" v-if="comment.can?.delete">
                     <button class="font-mono hover:font-semibold text-red-700 text-xs">Delete</button>
                 </form>
@@ -21,6 +25,6 @@
 import {relativeDate} from "@/utils/date.js";
 
 const props = defineProps(['comment']);
-const emit = defineEmits(['delete']);
+const emit = defineEmits(['delete', 'edit']);
 
 </script>

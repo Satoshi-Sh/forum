@@ -8,20 +8,10 @@ use Illuminate\Http\Request;
 
 class CommentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function __construct()
     {
-        //
+        $this->authorizeResource(Comment::class);
     }
 
     /**
@@ -35,15 +25,7 @@ class CommentController extends Controller
             'post_id' => $post->id,
             'user_id' => $request->user()->id,
         ]);
-        return to_route('posts.show', $post);
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Comment $comment)
-    {
-        //
+        return to_route('posts.show', $post)->banner('Comment added.');
     }
 
     /**
@@ -59,7 +41,10 @@ class CommentController extends Controller
      */
     public function update(Request $request, Comment $comment)
     {
-        //
+        $data = $request->validate(['body' => ['required', 'string', 'max:2500']]);
+        $comment->update($data);
+        return to_route('posts.show', ['post' => $comment->post_id, 'page' => $request->query('page')])
+            ->banner('Comment updated.');
     }
 
     /**
@@ -67,8 +52,8 @@ class CommentController extends Controller
      */
     public function destroy(Request $request, Comment $comment)
     {
-        $this->authorize('delete', $comment);
         $comment->delete();
-        return to_route('posts.show', ['post' => $comment->post_id, 'page' => $request->query('page')]);
+        return to_route('posts.show', ['post' => $comment->post_id, 'page' => $request->query('page')])
+            ->banner('Comment deleted.');
     }
 }

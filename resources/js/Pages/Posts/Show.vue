@@ -8,19 +8,26 @@
             </article>
             <div class="mt-12">
                 <h2 class="font-bold text-lg">Comments</h2>
-                <form v-if="$page.props.auth.user" @submit.prevent="addComment" class="mt-4">
+                <form v-if="$page.props.auth.user"
+                      @submit.prevent="() => commentIdBeingEdited ? updateComment() : addComment()" class="mt-4">
                     <div>
                         <InputLabel for="body" class="sr-only">Comment</InputLabel>
-                        <TextareaInput id="body" rows="4" v-model="commentForm.body"
+                        <TextareaInput ref="commentTextAreaRef" id="body" rows="4" v-model="commentForm.body"
                                        placeholder="Speak your mind spock"/>
                         <InputError :message="commentForm.errors.body" class="mt-3"/>
                     </div>
-                    <PrimaryButton type="submit" :disabled="commentForm.processing" class="mt-3">Add Comment
-                    </PrimaryButton>
+                    <PrimaryButton
+                        type="submit"
+                        :disabled="commentForm.processing" class="mt-3"
+                        v-text="commentIdBeingEdited ? 'Update Comment' : 'Add Comment'"
+                    />
+                    <SecondaryButton class="ml-2" v-if="commentIdBeingEdited" @click="cancelEditComment">Cancel
+                    </SecondaryButton>
+
                 </form>
                 <ul class="divide-y mt-4">
                     <li v-for="comment in comments.data" :key="comment.id" class="px-2 py-4">
-                        <Comment @delete="deleteComment" :comment="comment"/>
+                        <Comment @edit="editComment" @delete="deleteComment" :comment="comment"/>
                     </li>
                 </ul>
                 <Pagination :meta="comments.meta" :only="['comments']"/>
@@ -31,7 +38,7 @@
 </template>
 <script setup lang="ts">
 import AppLayout from "@/Layouts/AppLayout.vue";
-import {computed} from "vue";
+import {computed, ref} from "vue";
 import {relativeDate} from "@/utils/date.js"
 import Container from "@/Components/Container.vue";
 import Pagination from "@/Components/Pagination.vue";
@@ -41,6 +48,8 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 import {router, useForm} from "@inertiajs/vue3";
 import TextareaInput from "@/Components/TextareaInput.vue";
 import InputError from "@/Components/InputError.vue";
+import SecondaryButton from "@/Components/SecondaryButton.vue";
+import {useConfirm} from "@/utils/Composables/useConfirm.js"
 
 const props = defineProps(['post', 'comments'])
 const formattedDate = computed(() => relativeDate(props.post.created_at));
@@ -53,7 +62,48 @@ const addComment = () => commentForm.post(route('posts.comments.store', props.po
     onSuccess: () => commentForm.reset(),
 })
 
-const deleteComment = (commentId) => {
+const updateComment = async () => {
+    if (!await confirmation("Are you sure to want to update the comment")) {
+        commentTextAreaRef.value?.focus();
+        return;
+    }
+
+    commentForm.put(route('comments.update', {
+            comment: commentIdBeingEdited.value,
+            body: commentForm.body,
+            page: props.comments.meta.current_page
+        }),
+        {
+            preserveScroll: true,
+            onSuccess: cancelEditComment
+        })
+}
+
+const commentTextAreaRef = ref(null);
+
+const commentIdBeingEdited = ref(null);
+
+const commentBeingEdit = computed(() => props.comments.data.find(comment => comment.id === commentIdBeingEdited.value))
+
+const {confirmation} = useConfirm();
+
+const editComment = (commentId) => {
+    commentIdBeingEdited.value = commentId;
+    commentForm.body = commentBeingEdit.value?.body;
+    commentTextAreaRef.value.focus();
+};
+
+const cancelEditComment = () => {
+    commentIdBeingEdited.value = null;
+    commentForm.reset();
+}
+
+
+const deleteComment = async (commentId) => {
+
+    if (!await confirmation("Are you sure to want to delete the comment")) {
+        return;
+    }
     router.delete(route('comments.destroy', {
             comment: commentId,
             page: props.comments.meta.current_page
@@ -61,4 +111,6 @@ const deleteComment = (commentId) => {
         {preserveScroll: true}
     );
 }
+
+
 </script>

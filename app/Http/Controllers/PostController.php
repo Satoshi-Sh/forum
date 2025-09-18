@@ -6,9 +6,15 @@ use App\Http\Resources\CommentResource;
 use App\Http\Resources\PostResource;
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Post::class, 'post');
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -43,14 +49,18 @@ class PostController extends Controller
                 ...$validated
             ]);
 
-        return to_route('posts.show', $post)->banner('Post created.');
+        return redirect($post->showRoute())->banner('Post created.');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Post $post)
+    public function show(Request $request, Post $post)
     {
+        if (!Str::endswith($post->showRoute(), $request->path())) {
+            return redirect($post->showRoute($request->query()), status: 301);
+        }
+
         $post->load('user');
         return inertia('Posts/Show', [
                 'post' => fn() => PostResource::make($post),

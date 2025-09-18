@@ -24,14 +24,14 @@ it('redirects to the post show page', function () {
     $comment = Comment::factory()->create();
     actingAs($comment->user)
         ->put(route('comments.update', $comment), ['body' => 'Updated body'])
-        ->assertRedirect(route('posts.show', $comment->post_id));
+        ->assertRedirect($comment->post->showRoute());
 });
 
 it('redirects to the correct page of comments', function () {
     $comment = Comment::factory()->create();
     actingAs($comment->user)
         ->put(route('comments.update', ['comment' => $comment, 'page' => 2]), ['body' => 'Updated body'])
-        ->assertRedirect(route('posts.show', ['post' => $comment->post_id, 'page' => 2]));
+        ->assertRedirect($comment->post->showRoute(['page' => 2]));
 });
 it('cannot update a comment from another user', function () {
     $comment = Comment::factory()->create();

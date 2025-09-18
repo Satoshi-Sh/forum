@@ -20,7 +20,7 @@ it('redirect to the posts index page', function () {
     $comment = Comment::factory()->create();
     actingAs($comment->user)
         ->delete(route('comments.destroy', $comment))
-        ->assertRedirect(route('posts.show', $comment->post_id));
+        ->assertRedirect($comment->post->showRoute());
 });
 
 it('cannot delete a comment by others', function () {
@@ -46,5 +46,5 @@ it('redirect to the post show page with the page query parameter', function () {
     $comment = Comment::factory()->create();
     actingAs($comment->user)
         ->delete(route('comments.destroy', ['comment' => $comment, 'page' => 2]))
-        ->assertRedirect(route('posts.show', ['post' => $comment->post_id, 'page' => 2]));
+        ->assertRedirect($comment->post->showRoute(['page' => 2]));
 });

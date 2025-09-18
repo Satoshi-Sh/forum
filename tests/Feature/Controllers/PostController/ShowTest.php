@@ -9,14 +9,14 @@ use function Pest\Laravel\get;
 
 it('can show a post', function () {
     $post = Post::factory()->create();
-    get(route('posts.show', $post))
+    get($post->showRoute())
         ->assertComponent('Posts/Show', true);
 });
 
 it('passes a post to the view', function () {
     $post = Post::factory()->create();
     $post->load('user');
-    get(route('posts.show', $post))
+    get($post->showRoute())
         ->assertHasResource('post', PostResource::make($post));
 });
 
@@ -26,8 +26,15 @@ it('passes comments to the view', function () {
     $comments = Comment::factory(2)->for($post)->create();
     $comments->load('user');
 
-    get(route('posts.show', $post))
+    get($post->showRoute())
         ->assertHasPaginatedResource('comments', CommentResource::collection($comments->reverse()));
+});
+
+
+it('redirect if the slug is incorrect', function () {
+    $post = Post::factory()->create(['title' => 'Hello world']);
+    get(route('posts.show', [$post, 'wrong slug', 'page' => 2]))
+        ->assertRedirect($post->showRoute(['page' => 2]));
 });
 
 

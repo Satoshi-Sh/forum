@@ -10,7 +10,19 @@
                 </div>
                 <div class="mt-3">
                     <InputLabel for="body" class="sr-only">Body</InputLabel>
-                    <MarkdownEditor v-model="form.body"/>
+                    <MarkdownEditor v-model="form.body">
+                        <template #toolbar="{editor}">
+                            <li v-if="! isInProduction()">
+                                <button @click="autofill"
+                                        type="button"
+                                        title="Heading 3"
+                                        class="px-3 py-2"
+                                >
+                                    <i class="ri-article-line"/>
+                                </button>
+                            </li>
+                        </template>
+                    </MarkdownEditor>
                     <InputError :message="form.errors.body" class="mt-1"/>
                 </div>
                 <div class="mt-3">
@@ -31,6 +43,7 @@ import InputError from "@/Components/InputError.vue";
 import Container from "@/Components/Container.vue";
 import {useForm} from "@inertiajs/vue3";
 import MarkdownEditor from "@/Components/MarkdownEditor.vue";
+import {isInProduction} from "@/utils/Environment.js";
 
 const form = useForm({
     title: '',
@@ -38,4 +51,16 @@ const form = useForm({
 });
 
 const createPost = () => form.post(route('posts.store'))
+
+
+const autofill = async () => {
+    if (isInProduction()) {
+        return;
+    }
+    const response = await axios.get('/local/post-content');
+
+    form.title = response.data.title;
+    form.body = response.data.body;
+
+};
 </script>

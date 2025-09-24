@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import {defineConfig} from 'vite';
 import laravel from 'laravel-vite-plugin';
 import vue from '@vitejs/plugin-vue';
 
@@ -16,5 +16,18 @@ export default defineConfig({
                 },
             },
         }),
+
     ],
+    server: {
+        host: 'forum.test',
+        port: 5173,
+        cors: {
+            origin: ['http://forum.test', 'https://forum.test'],
+            credentials: true,
+        },
+        hmr: {
+            host: 'forum.test',
+            port: 5173,
+        },
+    },
 });

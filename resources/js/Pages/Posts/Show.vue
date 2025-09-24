@@ -1,7 +1,8 @@
 <template>
     <AppLayout :title="post.title">
         <Container>
-            <PageHeading>{{ post.title }}</PageHeading>
+            <Pill :href="route('posts.index', {topic:post.topic.slug})">{{ post.topic.name }}</Pill>
+            <PageHeading class="mt-2">{{ post.title }}</PageHeading>
             <span class="mt-1 text-sm text-gray-600">{{ formattedDate }} by {{ post.user.name }}</span>
             <article class="m-6 prose prose-sm max-w-none" v-html="post.html"/>
             <div class="mt-12">
@@ -11,7 +12,7 @@
                     <div>
                         <InputLabel for="body" class="sr-only">Comment</InputLabel>
                         <MarkdownEditor ref="commentTextAreaRef" id="body" v-model="commentForm.body"
-                                        placeholder="Speak your mind spock" editorClass="min-h-[160px]"/>
+                                        placeholder="Speak your mind spock" editorClass="min-h-[160px!important]"/>
                         <InputError :message="commentForm.errors.body" class="mt-3"/>
                     </div>
                     <PrimaryButton
@@ -49,6 +50,7 @@ import SecondaryButton from "@/Components/SecondaryButton.vue";
 import {useConfirm} from "@/utils/Composables/useConfirm.js"
 import MarkdownEditor from "@/Components/MarkdownEditor.vue";
 import PageHeading from "@/Components/PageHeading.vue";
+import Pill from "@/Components/Pill.vue";
 
 const props = defineProps(['post', 'comments'])
 const formattedDate = computed(() => relativeDate(props.post.created_at));

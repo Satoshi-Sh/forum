@@ -23,6 +23,21 @@ it('passes posts to the view', function () {
         ->assertHasPaginatedResource('posts', PostResource::collection($posts->reverse()));
 });
 
+it('it passes the selected topic to the view', function () {
+
+    $topic = Topic::factory()->create();
+
+    get(route('posts.index', ['topic' => $topic]))
+        ->assertHasResource('selectedTopic', TopicResource::make($topic));
+});
+
+it('passes topics to the view', function () {
+    $topics = Topic::factory(3)->create();
+
+    get(route('posts.index'))
+        ->assertHasResource('topics', TopicResource::collection($topics));
+});
+
 it('it can filter a topic', function () {
 
     $general = Topic::factory()->create();
@@ -35,10 +50,4 @@ it('it can filter a topic', function () {
         ->assertHasPaginatedResource('posts', PostResource::collection($posts->reverse()));
 });
 
-it('it passes the selected topic to the view', function () {
 
-    $topic = Topic::factory()->create();
-
-    get(route('posts.index', ['topic' => $topic]))
-        ->assertHasResource('selectedTopic', TopicResource::make($topic));
-});

@@ -30,6 +30,7 @@ class PostController extends Controller
             ->paginate();
         return inertia('Posts/Index', [
             'posts' => PostResource::collection($posts),
+            'topics' => fn() => TopicResource::collection(Topic::all()),
             'selectedTopic' => fn() => $topic ? TopicResource::make($topic) : null,
         ]);
     }
@@ -39,7 +40,10 @@ class PostController extends Controller
      */
     public function create()
     {
-        return inertia('Posts/Create');
+        return inertia('Posts/Create',
+            [
+                'topics' => TopicResource::collection(Topic::all()),
+            ]);
     }
 
     /**
@@ -49,6 +53,7 @@ class PostController extends Controller
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255',],
+            'topic_id' => ['required', 'exists:topics,id'],
             'body' => ['required', 'min:3', 'max:3000']
         ]);
 
@@ -70,7 +75,7 @@ class PostController extends Controller
             return redirect($post->showRoute($request->query()), status: 301);
         }
 
-        $post->load('user');
+        $post->load('user', 'topic');
         return inertia('Posts/Show', [
                 'post' => fn() => PostResource::make($post),
                 'comments' => fn() => CommentResource::collection($post->comments()->with('user')->latest()->latest('id')->paginate(10))

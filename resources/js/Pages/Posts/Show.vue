@@ -1,4 +1,7 @@
 <template>
+    <Head>
+        <link rel="canonical" :href="post.routes.show"/>
+    </Head>
     <AppLayout :title="post.title">
         <Container>
             <Pill :href="route('posts.index', {topic:post.topic.slug})">{{ post.topic.name }}</Pill>
@@ -44,7 +47,7 @@ import Pagination from "@/Components/Pagination.vue";
 import Comment from "@/Components/Comment.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
-import {router, useForm} from "@inertiajs/vue3";
+import {Head, router, useForm} from "@inertiajs/vue3";
 import InputError from "@/Components/InputError.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import {useConfirm} from "@/utils/Composables/useConfirm.js"

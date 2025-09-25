@@ -7,6 +7,10 @@
             <Pill :href="route('posts.index', {topic:post.topic.slug})">{{ post.topic.name }}</Pill>
             <PageHeading class="mt-2">{{ post.title }}</PageHeading>
             <span class="mt-1 text-sm text-gray-600">{{ formattedDate }} by {{ post.user.name }}</span>
+            <div class="mt-4">
+                <span class="text-pink-500 font-bold">{{ post.likes_count }} likes</span>
+            </div>
+
             <article class="m-6 prose prose-sm max-w-none" v-html="post.html"/>
             <div class="mt-12">
                 <h2 class="font-bold text-lg">Comments</h2>

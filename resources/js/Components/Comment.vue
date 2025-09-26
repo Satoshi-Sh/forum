@@ -10,6 +10,19 @@
                 }} {{ relativeDate(comment.created_at) }} ago | <span class="text-pink-500">{{ comment.likes_count }} likes</span></span>
 
             <div class="mt-3 flex justify-end space-x-3 empty:hidden">
+                <div v-if="$page.props.auth.user">
+                    <Link v-if="comment.can.like" preserve-scroll :href="route('likes.store',['comment',comment.id])"
+                          method="post"
+                          class="inline-block text-gray-700 hover:text-pink-500 transition-colors">
+                        <HandThumbUpIcon class="size-4 inline mr-2"/>
+                        <span class="sr-only">Like Comment</span>
+                    </Link>
+                    <Link v-else preserve-scroll :href="route('likes.destroy',['comment',comment.id])" method="delete"
+                          class="inline-block text-gray-700 hover:text-pink-500 transition-colors">
+                        <HandThumbDownIcon class="size-4 inline mr-2"/>
+                        <span class="sr-only">Unlike Comment</span>
+                    </Link>
+                </div>
                 <form @submit.prevent="$emit('edit', comment.id)" v-if="comment.can?.update">
                     <button class="font-mono hover:font-semibold text-xs">Edit</button>
                 </form>
@@ -23,6 +36,8 @@
 
 <script setup>
 import {relativeDate} from "@/utils/date.js";
+import {HandThumbDownIcon, HandThumbUpIcon} from "@heroicons/vue/20/solid/index.js";
+import {Link} from "@inertiajs/vue3";
 
 const props = defineProps(['comment']);
 const emit = defineEmits(['delete', 'edit']);

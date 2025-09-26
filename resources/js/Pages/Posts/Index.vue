@@ -18,6 +18,16 @@
                         </Pill>
                     </li>
                 </menu>
+                <form @submit.prevent="search" class="mt-4">
+                    <div>
+                        <InputLabel for="query">Search</InputLabel>
+                        <div class="flex mt-1 space-x-2">
+                            <TextInput v-model="searchForm.query" class="w-full" id="query"></TextInput>
+                            <SecondaryButton type="submit">Search</SecondaryButton>
+                        </div>
+
+                    </div>
+                </form>
             </div>
             <ul class="divide-y mt-4">
                 <li v-for="post in posts.data" :key="post.id"
@@ -40,12 +50,22 @@
 import AppLayout from "@/Layouts/AppLayout.vue";
 import Container from "@/Components/Container.vue";
 import Pagination from "@/Components/Pagination.vue";
-import {Link} from "@inertiajs/vue3";
+import {Link, useForm} from "@inertiajs/vue3";
 import {relativeDate} from "@/utils/date.js"
 import PageHeading from "@/Components/PageHeading.vue";
 import Pill from "@/Components/Pill.vue";
+import TextInput from "@/Components/TextInput.vue";
+import SecondaryButton from "@/Components/SecondaryButton.vue";
+import InputLabel from "@/Components/InputLabel.vue";
 
-defineProps(['posts', 'topics', 'selectedTopic']);
+const props = defineProps(['posts', 'query', 'topics', 'selectedTopic']);
 
+const searchForm = useForm({
+    query: props.query,
+})
+
+const search = () => {
+    searchForm.get(route('posts.index'));
+}
 
 </script>

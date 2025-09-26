@@ -8,11 +8,13 @@
                 </p>
                 <menu class="mt-4 flex space-x-1 overflow-x-auto pt-1 pb-2">
                     <li>
-                        <Pill :href="route('posts.index')" :filled="selectedTopic===null">All Posts</Pill>
+                        <Pill :href="route('posts.index', {query: searchForm.query})" :filled="selectedTopic===null">All
+                            Posts
+                        </Pill>
                     </li>
                     <li v-for="topic in topics" :key="topic.id">
                         <Pill
-                            :href="route('posts.index',{ topic: topic.slug })"
+                            :href="route('posts.index',{ topic: topic.slug,query: searchForm.query })"
                             :filled="selectedTopic?.id===topic.id"
                         >{{ topic.name }}
                         </Pill>
@@ -24,6 +26,7 @@
                         <div class="flex mt-1 space-x-2">
                             <TextInput v-model="searchForm.query" class="w-full" id="query"></TextInput>
                             <SecondaryButton type="submit">Search</SecondaryButton>
+                            <DangerButton v-if="searchForm.query" @click="clearSearch" type="reset">Clear</DangerButton>
                         </div>
 
                     </div>
@@ -50,22 +53,30 @@
 import AppLayout from "@/Layouts/AppLayout.vue";
 import Container from "@/Components/Container.vue";
 import Pagination from "@/Components/Pagination.vue";
-import {Link, useForm} from "@inertiajs/vue3";
+import {Link, useForm, usePage} from "@inertiajs/vue3";
 import {relativeDate} from "@/utils/date.js"
 import PageHeading from "@/Components/PageHeading.vue";
 import Pill from "@/Components/Pill.vue";
 import TextInput from "@/Components/TextInput.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import InputLabel from "@/Components/InputLabel.vue";
+import DangerButton from "@/Components/DangerButton.vue";
 
 const props = defineProps(['posts', 'query', 'topics', 'selectedTopic']);
 
 const searchForm = useForm({
     query: props.query,
+    page: 1,
 })
 
+const page = usePage();
 const search = () => {
-    searchForm.get(route('posts.index'));
+    searchForm.get(page.url);
+}
+
+const clearSearch = () => {
+    searchForm.query = '';
+    search();
 }
 
 </script>
